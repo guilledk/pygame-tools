@@ -8,8 +8,10 @@ from .loop import Gameloop
 
 class Component(ABC):
 
-    def __init__(self, entity):
-        self.entity = entity
+    def __init__(self):
+        self.entity: Optional['Entity'] = None
+        self.level: Optional[Level] = None
+        self.game: Optional[Gameloop] = None
 
     def start(self):
         ...
@@ -28,6 +30,7 @@ class Entity:
         self.parent = parent
 
         self.level: Optional[Level] = None
+        self.game: Optional[Gameloop] = None
         self.childs: List['Entity'] = list()
         self.components: List[Component] = list()
 
@@ -39,7 +42,10 @@ class Entity:
         return search
 
     def add_component(self, comp_type) -> Component:
-        new_comp = comp_type(self)
+        new_comp = comp_type()
+        new_comp.entity = self
+        new_comp.level = self.level
+        new_comp.game = self.game
         self.components.append(new_comp)
         return new_comp
 
@@ -67,6 +73,7 @@ class Level:
         assert ent.name not in self.entities
         self.entities[ent.name] = ent
         ent.level = self
+        ent.game = self.game
 
     def start(self):
         for ename, entity in self.entities.items():
